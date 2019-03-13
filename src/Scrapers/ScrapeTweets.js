@@ -33,12 +33,14 @@ exports = module.exports = class ScraperTweets {
             const tweet_id = $(item).attr('data-item-id');
             const tweet_url = 'https://twitter.com/' + $(item).attr('data-permalink-path');
             const tweet_content = $(item).find('.tweet-text').text();
+            const tweet_published = $(item).find('.js-short-timestamp').attr('data-time-ms');
             const tweet_screen = 'screenshots/' + tweet_id + '.jpeg';
             items.push({
                 tweet_id: tweet_id,
                 tweet_url: tweet_url,
                 tweet_content: tweet_content,
-                tweet_screen: tweet_screen
+                tweet_screen: tweet_screen,
+                tweet_published: parseInt(tweet_published)
             });
         });
 

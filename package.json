@@ -11,7 +11,9 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "moment": "^2.24.0",
+    "mysql2": "^1.6.5",
     "puppeteer": "^1.13.0",
+    "sequelize": "^4.43.0",
     "set-interval-async": "^1.0.23"
   }
 }

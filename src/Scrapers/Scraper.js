@@ -8,7 +8,7 @@ exports = module.exports = class Scraper {
         this.accounts = accounts;
     }
 
-    async run() {
+    async get() {
         const accounts = this.accounts;
 
         const browser = await puppeteer.launch();
@@ -33,8 +33,7 @@ exports = module.exports = class Scraper {
 
                 let items = await scrapper.get();
 
-                account_tweets.push({[accounts[key].id_account]: items});
-
+                account_tweets.push({items: items, account_id: accounts[key].id});
 
             } catch (e) {
                 console.log(e.message);
@@ -43,9 +42,8 @@ exports = module.exports = class Scraper {
             console.log('Finish scrape - ' + 'https://twitter.com/' + accounts[key].id_account);
         }
 
-        console.log(account_tweets);
-
         await browser.close();
 
+        return account_tweets;
     }
 };
