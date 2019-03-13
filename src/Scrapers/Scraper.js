@@ -1,59 +1,51 @@
 'use strict';
 
-const cheerio = require('cheerio');
-const helpers = require('./../helpers');
-const devices = require('puppeteer/DeviceDescriptors');
+const puppeteer = require('puppeteer');
+const Scrapper = require('./ScrapeTweets');
 
 exports = module.exports = class Scraper {
-
-    constructor(client, data, account) {
-        this.html = data;
-        this.client = client;
-        this.account = account;
+    constructor(accounts) {
+        this.accounts = accounts;
     }
 
     async run() {
+        const accounts = this.accounts;
 
-        const $ = cheerio.load(this.html);
-        const items = [];
-
-        const page = await this.client.newPage();
-
+        const browser = await puppeteer.launch();
+        const page = await browser.newPage();
         await page.setViewport({
-            width: 420,
-            height: 740
+            width: 1500,
+            height: 1100
         });
-
         await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36');
 
-        const max_tweets = this.account.count_per_time;
+        const account_tweets = [];
 
-        $('#stream-items-id .tweet').each((i, item) => {
-            if(i >= max_tweets) return false;
+        for (let key in accounts) {
+            console.log('Start scrape - ' + 'https://twitter.com/' + accounts[key].id_account);
 
-            const tweet_id = $(item).attr('data-item-id');
-            const tweet_url = 'https://twitter.com/' + $(item).attr('data-permalink-path');
-            const tweet_content = $(item).find('.tweet-text').text();
-            const tweet_screen = 'screenshots/' + tweet_id + '.jpeg';
-            items.push({
-                tweet_id: tweet_id,
-                tweet_url: tweet_url,
-                tweet_content: tweet_content,
-                tweet_screen: tweet_screen
-            });
-        });
-
-        for(let key in items) {
             try {
-                await page.goto('https://mobile.twitter.com/' + this.account.id_account + '/status/' +  items[key].tweet_id, {"waitUntil" : "networkidle0"});
-                await page.screenshot({type: 'jpeg', path: './screenshots/' + items[key].tweet_id + '.jpeg'});
-                await helpers.sleep(3000);
-            } catch(e) {
-                console.log('Tweet from account "' + this.account.id_account +  '" with id - ' + items[key].tweet_id + ' has error: ' +  e.message);
+                await page.goto('https://twitter.com/' + accounts[key].id_account);
+
+                const html = await page.content();
+
+                const scrapper = new Scrapper(browser, html, accounts[key]);
+
+                let items = await scrapper.get();
+
+                account_tweets.push({[accounts[key].id_account]: items});
+
+
+            } catch (e) {
+                console.log(e.message);
             }
+
+            console.log('Finish scrape - ' + 'https://twitter.com/' + accounts[key].id_account);
         }
 
-        return items;
+        console.log(account_tweets);
+
+        await browser.close();
+
     }
 };
-
