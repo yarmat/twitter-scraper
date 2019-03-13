@@ -1,7 +1,5 @@
 'use strict';
 
-const Sequelize = require('sequelize');
-const Op = Sequelize.Op;
 
 exports = module.exports = (sequelize, DataTypes) => {
     return sequelize.define("account", {
@@ -15,20 +13,9 @@ exports = module.exports = (sequelize, DataTypes) => {
         tableName: 'accounts',
         version: false,
         underscored: false,
-        timestamps: false,
-
-        scopes: {
-            updateable: {
-                where: {
-                    next_update: {
-                        [Op.or]: {
-                            [Op.lt]: new Date(),
-                            [Op.eq]: null
-                        }
-                    }
-                }
-            }
-        }
+        timestamps: true,
+        createdAt: false,
+        updatedAt: 'updated_at'
 
     })
 };

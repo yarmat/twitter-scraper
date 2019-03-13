@@ -31,7 +31,7 @@ exports = module.exports = class ScraperTweets {
             if (i >= max_tweets) return false;
 
             const tweet_id = $(item).attr('data-item-id');
-            const tweet_url = 'https://twitter.com/' + $(item).attr('data-permalink-path');
+            const tweet_url = 'https://twitter.com' + $(item).attr('data-permalink-path');
             const tweet_content = $(item).find('.tweet-text').text();
             const tweet_published = $(item).find('.js-short-timestamp').attr('data-time-ms');
             const tweet_screen = 'screenshots/' + tweet_id + '.jpeg';
