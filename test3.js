@@ -1,6 +1,5 @@
 'use strict';
 
-const CronJob = require('cron').CronJob;
 const Scrapper = require('./src/Scrapers/Scraper');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
@@ -17,8 +16,8 @@ const Tweet = sequelize.import('./src/Models/Tweet');
 
 Account.hasMany(Tweet, {foreignKey: 'account_id'});
 
-const job = new CronJob('*/1 * * * *', async () => {
 
+(async () => {
     try {
         const accounts = await Account.findAll({
             where: {
@@ -92,7 +91,4 @@ const job = new CronJob('*/1 * * * *', async () => {
     } catch (e) {
         console.log(e.message);
     }
-});
-
-
-job.start();
+})();

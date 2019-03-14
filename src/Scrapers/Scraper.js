@@ -2,6 +2,8 @@
 
 const puppeteer = require('puppeteer');
 const Scrapper = require('./ScrapeTweets');
+const cheerio = require('cheerio');
+
 
 exports = module.exports = class Scraper {
     constructor(accounts) {
@@ -27,13 +29,15 @@ exports = module.exports = class Scraper {
             try {
                 await page.goto('https://twitter.com/' + accounts[key].id_account);
 
-                const html = await page.content();
+                const min_date = new Date(new Date().getTime() - 1000 * 60 * 60 * accounts[key].available_time).getTime();
 
-                const scrapper = new Scrapper(browser, html, accounts[key]);
+                const html = await this.getHtml(page, min_date);
 
-                let items = await scrapper.get();
+                const scrapper = new Scrapper(browser, html, accounts[key], min_date);
 
-                account_tweets.push({items: items, account_id: accounts[key].id});
+                let result = await scrapper.get();
+
+                account_tweets.push({result: result, account_id: accounts[key].id});
 
             } catch (e) {
                 console.log(e.message);
@@ -45,5 +49,36 @@ exports = module.exports = class Scraper {
         await browser.close();
 
         return account_tweets;
+    }
+
+    async getHtml(page, min_date) {
+
+        let html = await page.content();
+
+        let $ = cheerio.load(html);
+
+        const tweet_placeholder = '#stream-items-id .tweet';
+
+        let last_item_date = $(tweet_placeholder)
+            .eq($(tweet_placeholder).length - 1)
+            .find('.js-short-timestamp')
+            .attr('data-time-ms');
+
+        while (last_item_date > min_date) { // Scroll page
+            await page.evaluate(_ => {
+                window.scrollBy(0, window.innerHeight);
+            });
+
+            html = await page.content();
+
+            $ = cheerio.load(html);
+
+            last_item_date = $(tweet_placeholder)
+                .eq($(tweet_placeholder).length - 1)
+                .find('.js-short-timestamp')
+                .attr('data-time-ms');
+        }
+
+        return html;
     }
 };
