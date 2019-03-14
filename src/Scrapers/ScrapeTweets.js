@@ -26,6 +26,8 @@ exports = module.exports = class ScraperTweets {
 
         await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36');
 
+        const unscraped_tweets = [];
+
         await $('#stream-items-id .tweet').each(async (i, item) => {
             const tweet_published = $(item).find('.js-short-timestamp').attr('data-time-ms');
 
@@ -33,7 +35,10 @@ exports = module.exports = class ScraperTweets {
 
             const tweet_id = $(item).attr('data-item-id');
 
-            if (await this.issetItems(tweet_id)) return;
+            if (await this.issetItems(tweet_id)) {
+                unscraped_tweets.push(tweet_id);
+                return;
+            }
 
             const tweet_url = 'https://twitter.com' + $(item).attr('data-permalink-path');
             const tweet_content = $(item).find('.tweet-text').text();
@@ -59,7 +64,7 @@ exports = module.exports = class ScraperTweets {
 
         const old_items = await this.getOldItems();
 
-        const removed_items = await this.getRemovedItems(page);
+        const removed_items = await this.getRemovedItems(page, unscraped_tweets);
         // const removed_items = [];
 
         return {
@@ -94,12 +99,14 @@ exports = module.exports = class ScraperTweets {
         return old_items;
     }
 
-    async getRemovedItems(page) {
+    async getRemovedItems(page, except_tweets) {
         const items = [];
 
         for (let key in this.account.tweets) {
 
             const item = this.account.tweets[key];
+
+            if (except_tweets.includes(item.tweet_id)) return;
 
             const response = await page.goto(item.url);
 
