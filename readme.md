@@ -1,5 +1,11 @@
 ### Instruction
 
+0 - run install
+<pre>
+npm install
+</pre>
+
+
 1 - Import dump db to your mysql.
 <pre>
 twitter.sql
