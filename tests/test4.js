@@ -1,6 +1,6 @@
 'use strict';
 
-const Client = require('./src/Client');
+const Client = require('./../src/Client');
 
 const client = new Client();
 

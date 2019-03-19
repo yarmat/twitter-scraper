@@ -1,10 +1,16 @@
 'use strict';
 
+const imgurConfig = require('./config/imgur');
+
 const CronJob = require('cron').CronJob;
 const Scrapper = require('./src/Scrapers/Scraper');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
-var fs = require('fs');
+const fs = require('fs');
+
+const imgur = require('imgur');
+imgur.setCredentials(imgurConfig.login, imgurConfig.password, imgurConfig.client_id);
+
 
 
 const sequelize = new Sequelize('twitter', 'root', 'root', {
@@ -15,6 +21,7 @@ const sequelize = new Sequelize('twitter', 'root', 'root', {
 
 const Account = sequelize.import('./src/Models/Account');
 const Tweet = sequelize.import('./src/Models/Tweet');
+const RemovedTweet = sequelize.import('./src/Models/RemovedTweet');
 
 Account.hasMany(Tweet, {foreignKey: 'account_id'});
 
@@ -56,9 +63,46 @@ const job = new CronJob('*/1 * * * *', async () => {
         for (let key in result) {
             const account_id = result[key].account_id;
 
-            console.log(result[key].result.removed_items); // console.log(tweets with status 404 (removed));
+            // console.log(result[key].result.removed_items); // console.log(tweets with status 404 (removed));
 
-            for (let tweet_key in result[key].result.items) { // create new tweets
+            for (let tweet_key in result[key].result.removed_items) { // save removed tweets
+                const tweet = result[key].result.removed_items[tweet_key];
+
+                const screen = __dirname + '/screenshots/' + tweet.tweet_id + '.jpeg';
+
+                imgur.uploadFile(screen)
+                    .then(function (json) {
+                        fs.unlink(screen, (err) => {
+                            if (!err) {
+
+                                RemovedTweet.findOrCreate({
+                                    where: {tweet_id: tweet.tweet_id},
+                                    defaults: {
+                                        content: tweet.content,
+                                        url: json.data.link,
+                                        account_id: tweet.account_id,
+                                        published_at: new Date(tweet.published_at)
+                                    }
+                                });
+
+                                Tweet.destroy({
+                                    where: {
+                                        id: tweet.id
+                                    }
+                                });
+
+                                console.log('Founded removed tweet. Id - ' + tweet.tweet_id);
+                            }
+                        });
+                    })
+                    .catch(function (err) {
+                        console.error(err.message);
+                    });
+
+            }
+
+
+            for (let tweet_key in result[key].result.items) { // save new tweets
                 const tweet = result[key].result.items[tweet_key];
 
                 Tweet.findOrCreate({
@@ -77,9 +121,9 @@ const job = new CronJob('*/1 * * * *', async () => {
             for (let tweet_key in result[key].result.old_items) { // remove old tweets
                 const tweet = result[key].result.old_items[tweet_key];
 
-                const screenshot = __dirname + '/screenshots/' + tweet.tweet_id + '.jpeg';
+                const screen = __dirname + '/screenshots/' + tweet.tweet_id + '.jpeg';
 
-                fs.unlink(screenshot, (err) => {
+                fs.unlink(screen, (err) => {
                     if (!err) console.log("Screen " + tweet.tweet_id + ".jpeg deleted");
                 }); // remove file of screen
 

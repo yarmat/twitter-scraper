@@ -11,11 +11,8 @@
   "dependencies": {
     "cheerio": "^1.0.0-rc.2",
     "cron": "^1.7.0",
-    "dropbox": "^4.0.16",
+    "imgur": "^0.3.1",
     "mysql2": "^1.6.5",
-    "node-fetch": "^2.3.0",
-    "path": "^0.12.7",
-    "prompt": "^1.0.0",
     "puppeteer": "^1.13.0",
     "sequelize": "^4.43.0"
   }

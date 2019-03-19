@@ -1,6 +1,6 @@
 'use strict';
 
-const Scrapper = require('./src/Scrapers/Scraper');
+const Scrapper = require('./../src/Scrapers/Scraper');
 const Sequelize = require('sequelize');
 const Op = Sequelize.Op;
 var fs = require('fs');
@@ -11,8 +11,8 @@ const sequelize = new Sequelize('twitter', 'root', 'root', {
     operatorsAliases: false
 });
 
-const Account = sequelize.import('./src/Models/Account');
-const Tweet = sequelize.import('./src/Models/Tweet');
+const Account = sequelize.import('./../src/Models/Account');
+const Tweet = sequelize.import('./../src/Models/Tweet');
 
 Account.hasMany(Tweet, {foreignKey: 'account_id'});
 

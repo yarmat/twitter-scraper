@@ -19,13 +19,5 @@ exports = module.exports = [
         server: '109.86.199.155',
         port: 47900,
         authenticate: false
-    },
-    {
-        type: 'http',
-        server: '176.111.252.57',
-        port: 39942,
-        authenticate: false
-    },
-
-
+    }
 ];

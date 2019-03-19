@@ -20,11 +20,37 @@ const sequelize = new Sequelize('db_name', 'db_user', 'db_password', {
 });
 ```
 <hr>
-3 - In DB you can see two tables: accounts and tweets<br>
-3.1 - refresh tweets table<br>
-3.2 - setting accounts table
+3 - Setting proxy servers
+<pre>
+config/proxy.js
+</pre>
+
 <hr>
-4 - run script
+
+4 - Setting UserAgents
+<pre>
+config/userAgent.js
+</pre>
+
+<hr>
+
+5 - Setting imgur.com
+<pre>
+config/imgur.js
+</pre>
+```js
+    login: 'login',
+    password: 'password',
+    client_id: 'client_id'
+```
+
+<hr>
+6 - In DB you can see three tables: accounts, tweets and tweets_removed<br>
+6.1 - refresh tweets table<br>
+6.2 - refresh tweets_removed table<br>
+6.3 - setting accounts table
+<hr>
+7 - run script
 
 ```js
 node index.js
