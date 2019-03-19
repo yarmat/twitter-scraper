@@ -4,5 +4,8 @@ exports = module.exports = {
     },
     time() {
         return parseInt(new Date().getTime() / 1000)
+    },
+    getRandomInt(min, max) {
+        return Math.floor(Math.random() * (max - min)) + min;
     }
 };

@@ -1,9 +1,8 @@
 'use strict';
 
-const puppeteer = require('puppeteer');
 const Scrapper = require('./ScrapeTweets');
 const cheerio = require('cheerio');
-
+const Client = require('./../Client');
 
 exports = module.exports = class Scraper {
     constructor(accounts) {
@@ -13,13 +12,20 @@ exports = module.exports = class Scraper {
     async get() {
         const accounts = this.accounts;
 
-        const browser = await puppeteer.launch();
+        // const browser = await puppeteer.launch();
+        // const page = await browser.newPage();
+        // await page.setViewport({
+        //     width: 1500,
+        //     height: 1100
+        // });
+        // await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36');
+
+        const browser = new Client();
+
+        await browser.getWithProxy();
+        // await browser.get();
+
         const page = await browser.newPage();
-        await page.setViewport({
-            width: 1500,
-            height: 1100
-        });
-        await page.setUserAgent('Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.110 Safari/537.36');
 
         const account_tweets = [];
 
